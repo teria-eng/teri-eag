@@ -1,0 +1,2343 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>そろばん特訓アプリ</title>
+
+<style>
+:root{
+  --primary:#4f46e5;
+  --primary-hover:#4338ca;
+  --success:#10b981;
+  --bg:#f8fafc;
+  --card:#ffffff;
+  --text:#1e293b;
+  --sub:#64748b;
+  --border:#e2e8f0;
+}
+
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  padding:16px;
+  background:var(--bg);
+  color:var(--text);
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+}
+
+.screen{
+  display:none;
+  width:100%;
+  max-width:600px;
+  margin:0 auto;
+  padding:24px;
+  background:var(--card);
+  border-radius:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,.05);
+}
+
+.screen.active{
+  display:block;
+}
+
+h2,h3{
+  margin-top:0;
+}
+
+button{
+  width:100%;
+  padding:13px 16px;
+  margin:6px 0;
+  border:0;
+  border-radius:9px;
+  background:var(--primary);
+  color:#fff;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+button:hover{
+  background:var(--primary-hover);
+}
+
+button.gray{
+  background:#64748b;
+}
+
+button.green{
+  background:#10b981;
+}
+
+button.blue{
+  background:#0284c7;
+}
+
+button.purple{
+  background:#7c3aed;
+}
+
+button.exam-green{
+  background:#059669;
+}
+
+input,
+select{
+  width:100%;
+  padding:12px;
+  margin:6px 0 12px;
+  border:1px solid var(--border);
+  border-radius:8px;
+  font-size:16px;
+  background:#fff;
+}
+
+.big-display{
+  text-align:center;
+  font-size:32px;
+  font-weight:bold;
+  color:var(--primary);
+  margin:20px 0;
+}
+
+.menu-section{
+  margin-bottom:20px;
+  padding:16px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#f8fafc;
+}
+
+.menu-section h3{
+  margin-bottom:10px;
+}
+
+.menu-section p{
+  margin:4px 0 10px;
+  color:var(--sub);
+  font-size:13px;
+}
+
+.setting-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.setting-row input{
+  text-align:center;
+  margin-bottom:12px;
+}
+
+.setting-row span{
+  white-space:nowrap;
+  font-weight:bold;
+}
+
+.result-box{
+  padding:18px;
+  margin:20px 0;
+  border-radius:10px;
+  text-align:center;
+  background:#eff6ff;
+  border:2px solid #93c5fd;
+}
+
+.result-judgement{
+  text-align:center;
+  font-size:42px;
+  font-weight:bold;
+  margin:20px 0;
+}
+
+.note{
+  color:var(--sub);
+  font-size:13px;
+  line-height:1.6;
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-top:8px;
+}
+
+.mode-title{
+  text-align:center;
+  padding:12px;
+  background:#f1f5f9;
+  border-radius:10px;
+  margin-bottom:18px;
+}
+
+.exam-group{
+  margin-top:10px;
+}
+
+.exam-group-title{
+  font-size:13px;
+  color:var(--sub);
+  font-weight:bold;
+  margin:10px 0 5px;
+}
+</style>
+</head>
+
+<body>
+
+
+<!-- =====================================================
+     メインメニュー
+===================================================== -->
+
+<div id="menu-screen" class="screen active">
+
+<h2 style="text-align:center;">
+🧮 そろばん特訓アプリ
+</h2>
+
+<p style="
+text-align:center;
+color:#64748b;
+margin-bottom:22px;
+">
+読み上げ算・読み上げ暗算の練習
+</p>
+
+
+<!-- =====================
+     本格検定
+===================== -->
+
+<div class="menu-section">
+
+<h3>🏆 本格検定</h3>
+
+<p>
+実際の検定を意識した問題に挑戦します。
+</p>
+
+<button
+id="btn-exam-yomi"
+class="exam-green"
+type="button">
+🧮 本格検定 読上算モード
+</button>
+
+<button
+id="btn-exam-anzan"
+type="button">
+🧠 本格検定 読上暗算モード
+</button>
+
+</div>
+
+
+<!-- =====================
+     自由練習
+===================== -->
+
+<div class="menu-section">
+
+<h3>✏️ 自由練習</h3>
+
+<p>
+桁数・口数・問題数を自分で設定して練習します。
+</p>
+
+<button
+id="btn-free-yomi"
+class="blue"
+type="button">
+🧮 自由練習 読上算
+</button>
+
+<button
+id="btn-free-anzan"
+class="purple"
+type="button">
+🧠 自由練習 読上暗算
+</button>
+
+</div>
+
+</div>
+
+
+<!-- =====================================================
+     自由練習 設定
+===================================================== -->
+
+<div id="free-setup-screen" class="screen">
+
+<div class="mode-title">
+
+<h2 id="free-title">
+✏️ 自由練習
+</h2>
+
+<p class="note">
+好きな桁数・口数・問題数で練習できます。
+</p>
+
+</div>
+
+
+<label>
+桁数の設定
+</label>
+
+<div class="setting-row">
+
+<input
+type="number"
+id="free-min-digit"
+value="1"
+min="1"
+max="10">
+
+<span>桁 ～</span>
+
+<input
+type="number"
+id="free-max-digit"
+value="2"
+min="1"
+max="10">
+
+<span>桁</span>
+
+</div>
+
+
+<label>
+口数
+</label>
+
+<input
+type="number"
+id="free-count"
+value="5"
+min="2"
+max="30">
+
+
+<label>
+問題数
+</label>
+
+<input
+type="number"
+id="free-question-count"
+value="5"
+min="1"
+max="50">
+
+
+<button
+id="btn-start-free"
+class="green"
+type="button">
+✏️ 練習スタート！
+</button>
+
+<button
+id="btn-free-back"
+class="gray"
+type="button">
+もどる
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     読み上げ プレイ
+===================================================== -->
+
+<div id="play-screen" class="screen">
+
+<div class="mode-title">
+
+<h2 id="play-title">
+読み上げ中
+</h2>
+
+</div>
+
+
+<div
+id="play-question-no"
+class="big-display">
+第1問
+</div>
+
+
+<p style="
+text-align:center;
+color:#64748b;
+">
+音声を聞いて計算してください。
+</p>
+
+
+<button
+id="btn-repeat"
+type="button">
+🔊 もう一度読み上げる
+</button>
+
+
+<button
+id="btn-show-answer"
+class="green"
+type="button">
+答えを見る
+</button>
+
+
+<button
+id="btn-play-stop"
+class="gray"
+type="button">
+やめる
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     自由練習 答え
+===================================================== -->
+
+<div id="answer-screen" class="screen">
+
+<h2 style="text-align:center;">
+答え
+</h2>
+
+
+<div
+id="answer-value"
+class="big-display"
+style="color:#10b981;">
+0
+</div>
+
+
+<button
+id="btn-next-question"
+class="green"
+type="button">
+次の問題へ
+</button>
+
+
+<button
+id="btn-answer-end"
+class="gray"
+type="button">
+終了する
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     本格検定 レベル選択
+===================================================== -->
+
+<div id="exam-select-screen" class="screen">
+
+<h2
+id="exam-select-title"
+style="text-align:center;">
+🏆 本格検定
+</h2>
+
+<p class="note">
+挑戦するレベルを選択してください。
+</p>
+
+
+<select id="exam-grade-select"></select>
+
+
+<button
+id="btn-start-exam"
+class="green"
+type="button">
+🏆 検定スタート！
+</button>
+
+
+<button
+id="btn-exam-back"
+class="gray"
+type="button">
+もどる
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     本格検定 プレイ
+===================================================== -->
+
+<div id="exam-play-screen" class="screen">
+
+<div class="mode-title">
+
+<h2 id="exam-play-title">
+🏆 検定中
+</h2>
+
+</div>
+
+
+<div
+id="exam-question-no"
+class="big-display">
+第1問 / 全10問
+</div>
+
+
+<p
+id="exam-rule-info"
+style="
+text-align:center;
+color:#64748b;">
+1題10点
+</p>
+
+
+<p style="
+text-align:center;
+color:#64748b;">
+音声を聞いて答えを入力してください。
+</p>
+
+
+<input
+type="number"
+id="exam-answer-input"
+placeholder="答えを入力してください">
+
+
+<button
+id="btn-exam-repeat"
+type="button">
+🔊 もう一度読み上げる
+</button>
+
+
+<button
+id="btn-exam-submit"
+class="green"
+type="button">
+答え合わせ
+</button>
+
+
+<button
+id="btn-exam-stop"
+class="gray"
+type="button">
+やめる
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     本格検定 各問結果
+===================================================== -->
+
+<div id="exam-question-result-screen" class="screen">
+
+<h2 style="text-align:center;">
+採点結果
+</h2>
+
+
+<div
+id="exam-question-judgement"
+class="result-judgement">
+⭕️
+</div>
+
+
+<p
+id="exam-question-detail"
+style="
+text-align:center;
+color:#64748b;">
+あなたの答え：120 ／ 正解：120
+</p>
+
+
+<button
+id="btn-exam-next"
+class="green"
+type="button">
+次の問題へ
+</button>
+
+
+<button
+id="btn-exam-finish"
+class="gray"
+type="button">
+検定を終了する
+</button>
+
+</div>
+
+
+<!-- =====================================================
+     最終結果
+===================================================== -->
+
+<div id="result-screen" class="screen">
+
+<h2 style="text-align:center;">
+🎉 結果発表
+</h2>
+
+
+<div class="result-box">
+
+<h3
+id="result-score"
+style="font-size:24px;">
+得点：0点
+</h3>
+
+
+<p
+id="result-grade"
+style="
+font-size:20px;
+font-weight:bold;
+color:#4f46e5;">
+判定
+</p>
+
+</div>
+
+
+<button
+id="btn-result-menu"
+type="button">
+メニューに戻る
+</button>
+
+</div>
+
+
+<script>
+
+document.addEventListener('DOMContentLoaded',function(){
+
+
+/* =====================================================
+   基本データ
+===================================================== */
+
+let currentMode='free';
+let currentGenre='yomi';
+
+let questions=[];
+let currentIndex=0;
+
+let examQuestions=[];
+let examIndex=0;
+let examScore=0;
+let examMeta={};
+
+let speechTimeouts=[];
+
+const SPEECH_INTERVAL=4000;
+
+
+/* =====================================================
+   画面切り替え
+===================================================== */
+
+function showScreen(id){
+
+stopSpeech();
+
+document
+.querySelectorAll('.screen')
+.forEach(screen=>{
+  screen.classList.remove('active');
+});
+
+const target=document.getElementById(id);
+
+if(target){
+  target.classList.add('active');
+}
+
+}
+
+
+/* =====================================================
+   音声停止
+===================================================== */
+
+function stopSpeech(){
+
+speechTimeouts.forEach(id=>{
+  clearTimeout(id);
+});
+
+speechTimeouts=[];
+
+if('speechSynthesis' in window){
+  window.speechSynthesis.cancel();
+}
+
+}
+
+
+/* =====================================================
+   1つだけ読み上げ
+===================================================== */
+
+function speakSingle(text){
+
+stopSpeech();
+
+if(!('speechSynthesis' in window)){
+  return;
+}
+
+const utterance=
+new SpeechSynthesisUtterance(text);
+
+utterance.lang='ja-JP';
+utterance.rate=1.0;
+
+window.speechSynthesis.speak(utterance);
+
+}
+
+
+/* =====================================================
+   読み上げ算・読み上げ暗算
+===================================================== */
+
+function speakQuestion(q){
+
+stopSpeech();
+
+if(!('speechSynthesis' in window)){
+  return;
+}
+
+const phrases=[];
+
+
+q.nums.forEach((n,i)=>{
+
+const isLast=
+i===q.nums.length-1;
+
+if(i===0){
+
+phrases.push(
+  n+(isLast?'円では':'円なり')
+);
+
+return;
+
+}
+
+const isSub=
+q.ops[i]==='sub';
+
+const prevIsSub=
+q.ops[i-1]==='sub';
+
+
+if(isSub){
+
+if(prevIsSub){
+
+phrases.push(
+  n+(isLast?'円では':'円なり')
+);
+
+}else{
+
+phrases.push(
+  '引いては、'+
+  n+
+  (isLast?'円では':'円なり')
+);
+
+}
+
+}else{
+
+if(prevIsSub){
+
+phrases.push(
+  '加えて、'+
+  n+
+  (isLast?'円では':'円なり')
+);
+
+}else{
+
+phrases.push(
+  n+
+  (isLast?'円では':'円なり')
+);
+
+}
+
+}
+
+});
+
+
+phrases.forEach((phrase,index)=>{
+
+const timeoutId=
+setTimeout(()=>{
+
+if(!('speechSynthesis' in window)){
+  return;
+}
+
+let text=phrase;
+
+if(index===0){
+  text='ねがいましては、'+phrase;
+}
+
+const utterance=
+new SpeechSynthesisUtterance(text);
+
+utterance.lang='ja-JP';
+utterance.rate=1.0;
+
+window.speechSynthesis.speak(utterance);
+
+},index*SPEECH_INTERVAL);
+
+speechTimeouts.push(timeoutId);
+
+});
+
+}
+
+
+/* =====================================================
+   ランダム整数
+===================================================== */
+
+function randomInt(min,max){
+
+return Math.floor(
+  Math.random()*(max-min+1)
+)+min;
+
+}
+
+
+/* =====================================================
+   数字生成
+===================================================== */
+
+function generateNumber(minDigits,maxDigits){
+
+const digits=
+randomInt(minDigits,maxDigits);
+
+return randomInt(
+  Math.pow(10,digits-1),
+  Math.pow(10,digits)-1
+);
+
+}
+
+
+/* =====================================================
+   通常問題作成
+===================================================== */
+
+function createQuestion(
+  minD,
+  maxD,
+  count
+){
+
+let nums=[];
+let ops=[];
+let answer=0;
+
+
+for(let i=0;i<count;i++){
+
+const n=
+generateNumber(minD,maxD);
+
+let op='add';
+
+
+/*
+  2問目以降、
+  20%程度で引き算。
+  答えがマイナスにならない場合のみ。
+*/
+
+if(
+  i>0 &&
+  Math.random()<0.2 &&
+  answer-n>=0
+){
+
+op='sub';
+answer-=n;
+
+}else{
+
+answer+=n;
+
+}
+
+nums.push(n);
+ops.push(op);
+
+}
+
+
+return{
+  nums,
+  ops,
+  answer
+};
+
+}
+
+
+/* =====================================================
+   引き算入り問題作成
+===================================================== */
+
+function createSubtractionQuestion(
+  minD,
+  maxD,
+  count,
+  exactD=0
+){
+
+let nums=[];
+let ops=[];
+let answer=0;
+
+
+/*
+  最初の数字は必ず足す
+*/
+
+const first=
+exactD>0
+?randomInt(
+  Math.pow(10,exactD-1),
+  Math.pow(10,exactD)-1
+)
+:generateNumber(minD,maxD);
+
+
+nums.push(first);
+ops.push('add');
+answer=first;
+
+
+for(let i=1;i<count;i++){
+
+let useSub=
+  Math.random()<0.5;
+
+
+if(useSub && answer>0){
+
+const upper=
+Math.min(
+  answer,
+  exactD>0
+  ?Math.pow(10,exactD)-1
+  :Math.pow(10,maxD)-1
+);
+
+const lower=
+exactD>0
+?Math.pow(10,exactD-1)
+:Math.pow(10,minD-1);
+
+
+if(upper>=lower){
+
+const n=
+randomInt(lower,upper);
+
+nums.push(n);
+ops.push('sub');
+answer-=n;
+
+continue;
+
+}
+
+}
+
+
+/*
+  引き算できない場合は足す
+*/
+
+const n=
+exactD>0
+?randomInt(
+  Math.pow(10,exactD-1),
+  Math.pow(10,exactD)-1
+)
+:generateNumber(minD,maxD);
+
+nums.push(n);
+ops.push('add');
+
+answer+=n;
+
+}
+
+
+return{
+  nums,
+  ops,
+  answer
+};
+
+}
+
+
+/* =====================================================
+   問題まとめ作成
+===================================================== */
+
+function buildQuestions(
+  minD,
+  maxD,
+  count,
+  questionCount
+){
+
+const result=[];
+
+
+for(let i=0;i<questionCount;i++){
+
+result.push(
+  createQuestion(
+    minD,
+    maxD,
+    count
+  )
+);
+
+}
+
+
+return result;
+
+}
+
+
+/* =====================================================
+   自由練習：読上算
+===================================================== */
+
+document
+.getElementById('btn-free-yomi')
+.addEventListener('click',()=>{
+
+currentMode='free';
+currentGenre='yomi';
+
+document
+.getElementById('free-title')
+.textContent=
+'✏️ 自由練習 読上算';
+
+showScreen('free-setup-screen');
+
+});
+
+
+/* =====================================================
+   自由練習：読上暗算
+===================================================== */
+
+document
+.getElementById('btn-free-anzan')
+.addEventListener('click',()=>{
+
+currentMode='free';
+currentGenre='anzan';
+
+document
+.getElementById('free-title')
+.textContent=
+'✏️ 自由練習 読上暗算';
+
+showScreen('free-setup-screen');
+
+});
+
+
+/* =====================================================
+   自由練習：戻る
+===================================================== */
+
+document
+.getElementById('btn-free-back')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+/* =====================================================
+   自由練習：開始
+===================================================== */
+
+document
+.getElementById('btn-start-free')
+.addEventListener('click',()=>{
+
+const minD=
+parseInt(
+  document.getElementById(
+    'free-min-digit'
+  ).value
+)||1;
+
+const maxD=
+parseInt(
+  document.getElementById(
+    'free-max-digit'
+  ).value
+)||2;
+
+const count=
+parseInt(
+  document.getElementById(
+    'free-count'
+  ).value
+)||5;
+
+const questionCount=
+parseInt(
+  document.getElementById(
+    'free-question-count'
+  ).value
+)||5;
+
+
+if(minD>maxD){
+
+alert(
+  '最小桁数は最大桁数以下にしてください。'
+);
+
+return;
+
+}
+
+
+questions=
+buildQuestions(
+  minD,
+  maxD,
+  count,
+  questionCount
+);
+
+currentIndex=0;
+
+startPracticeQuestion();
+
+});
+
+
+/* =====================================================
+   自由練習 問題開始
+===================================================== */
+
+function startPracticeQuestion(){
+
+showScreen('play-screen');
+
+
+let title='';
+
+
+if(currentGenre==='yomi'){
+
+title=
+'✏️ 自由練習 読上算中';
+
+}else{
+
+title=
+'✏️ 自由練習 読上暗算中';
+
+}
+
+
+document
+.getElementById('play-title')
+.textContent=title;
+
+
+document
+.getElementById('play-question-no')
+.textContent=
+`第 ${currentIndex+1} 問 / 全 ${questions.length} 問`;
+
+
+speakQuestion(
+  questions[currentIndex]
+);
+
+}
+
+
+/* =====================================================
+   自由練習：もう一度
+===================================================== */
+
+document
+.getElementById('btn-repeat')
+.addEventListener('click',()=>{
+
+if(questions[currentIndex]){
+
+speakQuestion(
+  questions[currentIndex]
+);
+
+}
+
+});
+
+
+/* =====================================================
+   自由練習：答えを見る
+===================================================== */
+
+document
+.getElementById('btn-show-answer')
+.addEventListener('click',()=>{
+
+stopSpeech();
+
+const q=
+questions[currentIndex];
+
+document
+.getElementById('answer-value')
+.textContent=
+q.answer;
+
+showScreen('answer-screen');
+
+});
+
+
+/* =====================================================
+   自由練習：次の問題
+===================================================== */
+
+document
+.getElementById('btn-next-question')
+.addEventListener('click',()=>{
+
+currentIndex++;
+
+
+if(currentIndex<questions.length){
+
+startPracticeQuestion();
+
+}else{
+
+alert(
+  'すべての問題が終了しました！\nお疲れ様でした！'
+);
+
+showScreen('menu-screen');
+
+}
+
+});
+
+
+/* =====================================================
+   自由練習：終了
+===================================================== */
+
+document
+.getElementById('btn-play-stop')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+document
+.getElementById('btn-answer-end')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+/* =====================================================
+   本格検定：読上算
+===================================================== */
+
+document
+.getElementById('btn-exam-yomi')
+.addEventListener('click',()=>{
+
+currentGenre='yomi';
+
+setupExamSelect();
+
+showScreen('exam-select-screen');
+
+});
+
+
+/* =====================================================
+   本格検定：読上暗算
+===================================================== */
+
+document
+.getElementById('btn-exam-anzan')
+.addEventListener('click',()=>{
+
+currentGenre='anzan';
+
+setupExamSelect();
+
+showScreen('exam-select-screen');
+
+});
+
+
+/* =====================================================
+   本格検定：戻る
+===================================================== */
+
+document
+.getElementById('btn-exam-back')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+/* =====================================================
+   本格検定：レベル選択
+===================================================== */
+
+const examGradeSelect=
+document.getElementById(
+  'exam-grade-select'
+);
+
+
+function setupExamSelect(){
+
+examGradeSelect.innerHTML='';
+
+
+if(currentGenre==='yomi'){
+
+document
+.getElementById('exam-select-title')
+.textContent=
+'🏆 本格検定：読上算';
+
+
+examGradeSelect.innerHTML=`
+
+<optgroup label="【高レベル】上位グループ">
+
+<option value="yomi_dan6_10">
+7〜16桁（10口ベース）
+10段〜6段レベル
+</option>
+
+<option value="yomi_dan_sub_5">
+7〜12桁（10口ベース）
+5段〜準初段レベル
+</option>
+
+</optgroup>
+
+<optgroup label="【一般レベル】標準グループ">
+
+<option value="yomi_kyu_1">
+5〜10桁（10口）
+</option>
+
+<option value="yomi_kyu_2">
+5〜8桁（10口）
+</option>
+
+<option value="yomi_kyu_3">
+3〜6桁（10口）
+</option>
+
+<option value="yomi_kyu_4">
+3〜5桁（10口）
+</option>
+
+<option value="yomi_kyu_5">
+3〜4桁（10口）
+</option>
+
+<option value="yomi_kyu_6">
+2〜3桁（10口）
+</option>
+
+</optgroup>
+
+`;
+
+}else{
+
+document
+.getElementById('exam-select-title')
+.textContent=
+'🏆 本格検定：読上暗算';
+
+
+examGradeSelect.innerHTML=`
+
+<optgroup label="【高レベル】上位グループ">
+
+<option value="anzan_dan6_10">
+3〜10桁（10口ベース）
+10段〜6段レベル
+</option>
+
+<option value="anzan_dan_sub_5">
+3〜5桁（10口ベース）
+5段〜準初段レベル
+</option>
+
+</optgroup>
+
+<optgroup label="【一般レベル】標準グループ">
+
+<option value="anzan_kyu_1">
+3〜4桁（10口）
+</option>
+
+<option value="anzan_kyu_2">
+2〜3桁（10口）
+</option>
+
+<option value="anzan_kyu_3">
+2桁揃い（10口）
+</option>
+
+<option value="anzan_kyu_4">
+2桁揃い（7口）
+</option>
+
+<option value="anzan_kyu_5">
+1〜2桁（5口）
+</option>
+
+<option value="anzan_kyu_6">
+1桁揃い（7口）
+</option>
+
+</optgroup>
+
+`;
+
+}
+
+}
+
+
+/* =====================================================
+   本格検定 問題作成
+===================================================== */
+
+function createExamQuestion(
+  minD,
+  maxD,
+  count,
+  exactD=0
+){
+
+return createQuestion(
+  exactD>0 ? exactD : minD,
+  exactD>0 ? exactD : maxD,
+  count
+);
+
+}
+
+
+/* =====================================================
+   本格検定 問題構築
+===================================================== */
+
+function buildExactExam(gradeKey){
+
+examQuestions=[];
+
+let config={};
+
+
+/* =====================================================
+   読上算 10段〜6段
+===================================================== */
+
+if(gradeKey==='yomi_dan6_10'){
+
+const specs=[
+
+{
+  minD:7,
+  maxD:13,
+  count:10,
+  numQ:4
+},
+
+{
+  minD:7,
+  maxD:14,
+  count:10,
+  numQ:4
+},
+
+{
+  minD:7,
+  maxD:15,
+  count:10,
+  numQ:4
+},
+
+{
+  minD:7,
+  maxD:16,
+  count:10,
+  numQ:3
+}
+
+];
+
+
+specs.forEach(s=>{
+
+for(let i=0;i<s.numQ;i++){
+
+examQuestions.push(
+  createExamQuestion(
+    s.minD,
+    s.maxD,
+    s.count
+  )
+);
+
+}
+
+});
+
+
+config={
+  total:15,
+  maxScore:150,
+  passScores:{
+    '10段（140点以上）':140,
+    '9段（120点以上）':120,
+    '8段（100点以上）':100,
+    '7段（80点以上）':80,
+    '6段（60点以上）':60
+  }
+};
+
+}
+
+
+/* =====================================================
+   読上暗算 10段〜6段
+===================================================== */
+
+else if(gradeKey==='anzan_dan6_10'){
+
+const specs=[
+
+{
+  minD:3,
+  maxD:6,
+  count:10,
+  numQ:3
+},
+
+{
+  minD:4,
+  maxD:7,
+  count:10,
+  numQ:3
+},
+
+{
+  minD:5,
+  maxD:8,
+  count:10,
+  numQ:3
+},
+
+{
+  minD:5,
+  maxD:9,
+  count:10,
+  numQ:3
+},
+
+{
+  minD:5,
+  maxD:10,
+  count:10,
+  numQ:3
+}
+
+];
+
+
+specs.forEach(s=>{
+
+for(let i=0;i<s.numQ;i++){
+
+examQuestions.push(
+  createExamQuestion(
+    s.minD,
+    s.maxD,
+    s.count
+  )
+);
+
+}
+
+});
+
+
+config={
+  total:15,
+  maxScore:150,
+  passScores:{
+    '10段（140点以上）':140,
+    '9段（120点以上）':120,
+    '8段（100点以上）':100,
+    '7段（80点以上）':80,
+    '6段（60点以上）':60
+  }
+};
+
+}
+
+
+/* =====================================================
+   読上算 5段〜準初段
+===================================================== */
+
+else if(gradeKey==='yomi_dan_sub_5'){
+
+const specs=[
+
+{
+  minD:7,
+  maxD:10,
+  count:10,
+  numQ:5
+},
+
+{
+  minD:7,
+  maxD:11,
+  count:10,
+  numQ:5
+},
+
+{
+  minD:7,
+  maxD:12,
+  count:10,
+  numQ:5
+}
+
+];
+
+
+specs.forEach(s=>{
+
+for(let i=0;i<s.numQ;i++){
+
+examQuestions.push(
+  createExamQuestion(
+    s.minD,
+    s.maxD,
+    s.count
+  )
+);
+
+}
+
+});
+
+
+config={
+  total:15,
+  maxScore:150,
+  passScores:{
+    '5段（140点以上）':140,
+    '4段（130点以上）':130,
+    '3段（120点以上）':120,
+    '準3段（110点以上）':110,
+    '2段（100点以上）':100,
+    '準2段（90点以上）':90,
+    '初段（80点以上）':80,
+    '準初段（70点以上）':70
+  }
+};
+
+}
+
+
+/* =====================================================
+   読上暗算 5段〜準初段
+===================================================== */
+
+else if(gradeKey==='anzan_dan_sub_5'){
+
+const specs=[
+
+{
+  minD:3,
+  maxD:4,
+  count:10,
+  numQ:4
+},
+
+{
+  minD:4,
+  maxD:4,
+  count:10,
+  numQ:4,
+  exactD:4
+},
+
+{
+  minD:3,
+  maxD:5,
+  count:10,
+  numQ:4
+},
+
+{
+  minD:3,
+  maxD:5,
+  count:10,
+  numQ:3
+}
+
+];
+
+
+specs.forEach(s=>{
+
+for(let i=0;i<s.numQ;i++){
+
+examQuestions.push(
+  createExamQuestion(
+    s.minD,
+    s.maxD,
+    s.count,
+    s.exactD||0
+  )
+);
+
+}
+
+});
+
+
+config={
+  total:15,
+  maxScore:150,
+  passScores:{
+    '5段（140点以上）':140,
+    '4段（130点以上）':130,
+    '3段（120点以上）':120,
+    '準3段（110点以上）':110,
+    '2段（100点以上）':100,
+    '準2段（90点以上）':90,
+    '初段（80点以上）':80,
+    '準初段（70点以上）':70
+  }
+};
+
+}
+
+
+/* =====================================================
+   一般レベル
+===================================================== */
+
+else{
+
+const parts=
+gradeKey.split('_');
+
+const gradeNum=
+parts[parts.length-1];
+
+
+let minD;
+let maxD;
+let count;
+let exactD=0;
+
+
+/* =====================================================
+   読上算
+===================================================== */
+
+if(currentGenre==='yomi'){
+
+if(gradeNum==='1'){
+
+minD=5;
+maxD=10;
+count=10;
+
+}else if(gradeNum==='2'){
+
+minD=5;
+maxD=8;
+count=10;
+
+}else if(gradeNum==='3'){
+
+minD=3;
+maxD=6;
+count=10;
+
+}else if(gradeNum==='4'){
+
+minD=3;
+maxD=5;
+count=10;
+
+}else if(gradeNum==='5'){
+
+minD=3;
+maxD=4;
+count=10;
+
+}else{
+
+minD=2;
+maxD=3;
+count=10;
+
+}
+
+
+/*
+  3・5・8・10問目に
+  引き算入り問題を配置
+*/
+
+for(let i=0;i<10;i++){
+
+let q;
+
+
+if(
+  i===2 ||
+  i===4 ||
+  i===7 ||
+  i===9
+){
+
+q=createSubtractionQuestion(
+  minD,
+  maxD,
+  count
+);
+
+}else{
+
+q=createQuestion(
+  minD,
+  maxD,
+  count
+);
+
+}
+
+
+examQuestions.push(q);
+
+}
+
+
+/* =====================================================
+   読上暗算
+===================================================== */
+
+}else{
+
+if(gradeNum==='1'){
+
+minD=3;
+maxD=4;
+count=10;
+
+}else if(gradeNum==='2'){
+
+minD=2;
+maxD=3;
+count=10;
+
+}else if(gradeNum==='3'){
+
+minD=2;
+maxD=2;
+exactD=2;
+count=10;
+
+}else if(gradeNum==='4'){
+
+minD=2;
+maxD=2;
+exactD=2;
+count=7;
+
+}else if(gradeNum==='5'){
+
+minD=1;
+maxD=2;
+count=5;
+
+}else{
+
+minD=1;
+maxD=1;
+exactD=1;
+count=7;
+
+}
+
+
+for(let i=0;i<10;i++){
+
+let q;
+
+
+if(
+  i===2 ||
+  i===4 ||
+  i===7 ||
+  i===9
+){
+
+q=createSubtractionQuestion(
+  minD,
+  maxD,
+  count,
+  exactD
+);
+
+}else{
+
+q=createExamQuestion(
+  minD,
+  maxD,
+  count,
+  exactD
+);
+
+}
+
+
+examQuestions.push(q);
+
+}
+
+}
+
+
+config={
+  total:10,
+  maxScore:100,
+  passScore:
+    gradeNum==='1'
+    ?80
+    :70,
+  gradeName:'このレベル'
+};
+
+}
+
+
+examMeta=config;
+
+}
+
+
+/* =====================================================
+   検定開始
+===================================================== */
+
+document
+.getElementById('btn-start-exam')
+.addEventListener('click',()=>{
+
+buildExactExam(
+  examGradeSelect.value
+);
+
+examIndex=0;
+examScore=0;
+
+startExamQuestion();
+
+});
+
+
+/* =====================================================
+   検定問題開始
+===================================================== */
+
+function startExamQuestion(){
+
+showScreen('exam-play-screen');
+
+const q=
+examQuestions[examIndex];
+
+
+document
+.getElementById('exam-play-title')
+.textContent=
+currentGenre==='yomi'
+?'🏆 本格検定：読上算'
+:'🏆 本格検定：読上暗算';
+
+
+document
+.getElementById('exam-question-no')
+.textContent=
+`第 ${examIndex+1} 問 / 全 ${examQuestions.length} 問`;
+
+
+document
+.getElementById('exam-answer-input')
+.value='';
+
+
+speakQuestion(q);
+
+}
+
+
+/* =====================================================
+   検定：もう一度
+===================================================== */
+
+document
+.getElementById('btn-exam-repeat')
+.addEventListener('click',()=>{
+
+if(examQuestions[examIndex]){
+
+speakQuestion(
+  examQuestions[examIndex]
+);
+
+}
+
+});
+
+
+/* =====================================================
+   検定：答え合わせ
+===================================================== */
+
+document
+.getElementById('btn-exam-submit')
+.addEventListener('click',()=>{
+
+stopSpeech();
+
+const userValue=
+document
+.getElementById('exam-answer-input')
+.value;
+
+const userAnswer=
+parseInt(userValue);
+
+const q=
+examQuestions[examIndex];
+
+const correct=
+q.answer;
+
+const isCorrect=
+!isNaN(userAnswer) &&
+userAnswer===correct;
+
+
+if(isCorrect){
+
+examScore+=10;
+
+}
+
+
+document
+.getElementById('exam-question-judgement')
+.textContent=
+isCorrect
+?'⭕️ 正解！'
+:'❌ 残念…';
+
+
+document
+.getElementById('exam-question-judgement')
+.style.color=
+isCorrect
+?'#10b981'
+:'#ef4444';
+
+
+document
+.getElementById('exam-question-detail')
+.textContent=
+`あなたの答え：${
+  isNaN(userAnswer)
+  ?'未入力'
+  :userAnswer
+} ／ 正解：${correct}`;
+
+
+const nextButton=
+document.getElementById(
+  'btn-exam-next'
+);
+
+
+if(
+  examIndex+1<
+  examQuestions.length
+){
+
+nextButton.textContent=
+'次の問題へ';
+
+}else{
+
+nextButton.textContent=
+'結果発表を見る';
+
+}
+
+
+showScreen(
+  'exam-question-result-screen'
+);
+
+});
+
+
+/* =====================================================
+   検定：次へ
+===================================================== */
+
+document
+.getElementById('btn-exam-next')
+.addEventListener('click',()=>{
+
+if(
+  examIndex+1<
+  examQuestions.length
+){
+
+examIndex++;
+
+startExamQuestion();
+
+}else{
+
+showExamResult();
+
+}
+
+});
+
+
+/* =====================================================
+   検定：終了
+===================================================== */
+
+document
+.getElementById('btn-exam-finish')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+document
+.getElementById('btn-exam-stop')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+/* =====================================================
+   検定結果
+===================================================== */
+
+function showExamResult(){
+
+showScreen('result-screen');
+
+
+let resultText='';
+
+
+if(examMeta.passScores){
+
+let achieved='不合格';
+
+
+const ranks=
+Object.keys(
+  examMeta.passScores
+);
+
+
+/*
+  上から順番に判定
+*/
+
+for(const rank of ranks){
+
+if(
+  examScore>=
+  examMeta.passScores[rank]
+){
+
+achieved=
+rank+' 達成！';
+
+break;
+
+}
+
+}
+
+
+resultText=
+`判定：${achieved}`;
+
+}else{
+
+const pass=
+examScore>=
+examMeta.passScore;
+
+
+resultText=
+pass
+?`🌟 合格おめでとう！（合格点：${examMeta.passScore}点）`
+:`❌ 不合格（合格点：${examMeta.passScore}点）`;
+
+}
+
+
+document
+.getElementById('result-score')
+.textContent=
+`得点：${examScore}点 / ${examMeta.maxScore}点満点`;
+
+
+document
+.getElementById('result-grade')
+.textContent=
+resultText;
+
+}
+
+
+/* =====================================================
+   結果 → メニュー
+===================================================== */
+
+document
+.getElementById('btn-result-menu')
+.addEventListener('click',()=>{
+
+showScreen('menu-screen');
+
+});
+
+
+/* =====================================================
+   初期状態
+===================================================== */
+
+showScreen('menu-screen');
+
+});
+</script>
+
+</body>
+</html>
